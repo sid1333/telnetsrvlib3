@@ -1,7 +1,7 @@
-telnetsrvlib
+telnetsrvlib3
 ============
 
-Telnet server using gevent or threading.
+Telnet server using gevent or threading for python3 - forked from ianepperson/telnetsrvlib which runs only on python2.
 
 Copied from http://pytelnetsrvlib.sourceforge.net/
 and modified to support gevent and eventlet, better input handling, clean asynchronous messages and much more.
