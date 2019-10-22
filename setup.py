@@ -5,9 +5,9 @@ def readme():
         return f.read()
 
 setup(
-    name = "telnetsrv",
+    name = "telnetsrv3",
     packages = ["telnetsrv"],
-    version = "0.4",
+    version = "0.5",
     extras_require = {
         'green': ['gevent'],
         'ssh': ['paramiko'],
@@ -16,7 +16,7 @@ setup(
     long_description = readme(),
     author = "Ian Epperson",
     author_email = "ian@epperson.com",
-    url = "https://github.com/ianepperson/telnetsrvlib",
+    url = "https://github.com/Blindfreddy/telnetsrvlib3",
     keywords = ["gevent", "telnet", "server"],
     classifiers = [
         "Programming Language :: Python",
