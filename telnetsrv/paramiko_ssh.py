@@ -1,7 +1,10 @@
 import logging
 #from binascii import hexlify
 from threading import Thread
-from SocketServer import BaseRequestHandler
+if sys.version_info > (3, 0):
+    from socketserver import BaseRequestHandler
+else:
+    from SocketServer import BaseRequestHandler
 
 from paramiko import Transport, ServerInterface, RSAKey, DSSKey, SSHException, \
                     AUTH_SUCCESSFUL, AUTH_FAILED, \
@@ -88,7 +91,7 @@ class SSHHandler(ServerInterface, BaseRequestHandler):
             # Tell transport to use this object as a server
             log.debug( 'Starting SSH server-side negotiation' )
             self.transport.start_server(server=self)
-        except SSHException, e:
+        except (SSHException) as e:
            log.warn('SSH negotiation failed. %s', e)
            raise
         
