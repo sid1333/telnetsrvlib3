@@ -391,7 +391,7 @@ class TelnetHandlerBase(BaseRequestHandler):
     WILLACK = {
         ECHO: DONT,
         SGA: DO,
-        NAWS: DONT,
+        NAWS: DO,
         TTYPE: DO,
         LINEMODE: DONT,
         NEW_ENVIRON: DO,
@@ -502,6 +502,12 @@ class TelnetHandlerBase(BaseRequestHandler):
             cls(request, address, server)
         except socket.error:
             pass
+
+    def setnaws(self, naws):
+        ''' Set width and height of the terminal on initial connection'''
+        self.WIDTH = columns = (256 * ord(naws[0])) + ord(naws[1])
+        self.HEIGHT = (256 * ord(naws[2])) + ord(naws[3])
+        log.debug("Set width to %s and height to %s" % (self.WIDTH, self.HEIGHT))
 
     def setterm(self, term):
         "Set the curses structures for this terminal"
