@@ -391,7 +391,7 @@ class TelnetHandlerBase(BaseRequestHandler):
     WILLACK = {
         ECHO: DONT,
         SGA: DO,
-        NAWS: DONT,
+        NAWS: DO,
         TTYPE: DO,
         LINEMODE: DONT,
         NEW_ENVIRON: DO,
@@ -502,6 +502,12 @@ class TelnetHandlerBase(BaseRequestHandler):
             cls(request, address, server)
         except socket.error:
             pass
+
+    def setnaws(self, naws):
+        ''' Set width and height of the terminal on initial connection'''
+        self.WIDTH = columns = (256 * ord(naws[0])) + ord(naws[1])
+        self.HEIGHT = (256 * ord(naws[2])) + ord(naws[3])
+        log.debug("Set width to %s and height to %s" % (self.WIDTH, self.HEIGHT))
 
     def setterm(self, term):
         "Set the curses structures for this terminal"
@@ -801,17 +807,17 @@ class TelnetHandlerBase(BaseRequestHandler):
         self.write(chr(10)+text+chr(10))
         self.write(self._current_prompt+''.join(self._current_line))
 
-    def write(self, text):
+    def write(self, text, encoding='latin-1'):
         """Send a packet to the socket. This function cooks output."""
         text = str(text)    # eliminate any unicode or other snigglets
         text = text.replace(IAC, IAC+IAC)
         text = text.replace(chr(10), chr(13)+chr(10))
-        self.writecooked(text)
+        self.writecooked(text,encoding)
 
-    def writecooked(self, text):
+    def writecooked(self, text, encoding='latin-1'):
         """Put data directly into the output queue (bypass output cooker)"""
         if sys.version_info > (3, 0):
-            self.sock.sendall(text.encode('latin1'))
+            self.sock.sendall(text.encode(encoding))
         else:
             self.sock.sendall(text)
 
