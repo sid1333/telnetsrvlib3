@@ -632,6 +632,8 @@ class TelnetHandlerBase(BaseRequestHandler):
     def _readline_echo(self, char, echo):
         """Echo a recieved character, move cursor etc..."""
         if self._readline_do_echo(echo):
+            if isinstance(char, bytes):
+                char = bytes.decode(char)
             self.write(char)
     
     def _readline_insert(self, char, echo, insptr, line):
