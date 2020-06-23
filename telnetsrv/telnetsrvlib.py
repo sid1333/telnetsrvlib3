@@ -947,7 +947,7 @@ class TelnetHandlerBase(BaseRequestHandler):
         """
         if params:
             cmd = params[0].upper()
-            if self.COMMANDS.has_key(cmd):
+            if cmd in self.COMMANDS:
                 method = self.COMMANDS[cmd]
                 doc = method.__doc__.split("\n")
                 docp = doc[0].strip()
