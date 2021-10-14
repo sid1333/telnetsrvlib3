@@ -7,22 +7,24 @@ import select
 
 from .telnetsrvlib import TelnetHandlerBase, command
 
+
 class TelnetHandler(TelnetHandlerBase):
     "A telnet server handler using Threading"
     def __init__(self, request, client_address, server):
         # This is the cooked input stream (list of charcodes)
-        self.cookedq = []   
+        self.cookedq = []
 
         # Create the locks for handing the input/output queues
         self.IQUEUELOCK = threading.Lock()
         self.OQUEUELOCK = threading.Lock()
 
         # Call the base class init method
-        TelnetHandlerBase.__init__(self, request, client_address, server)
-        
+        super().__init__(request, client_address, server)
+
     def setup(self):
-        '''Called after instantiation'''
-        TelnetHandlerBase.setup(self)
+        "Called after instantiation"
+        super().setup()
+
         # Spawn a thread to handle socket input
         self.thread_ic = threading.Thread(target=self.inputcooker)
         self.thread_ic.setDaemon(True)
@@ -31,18 +33,16 @@ class TelnetHandler(TelnetHandlerBase):
         
         # Sleep for 0.5 second to allow options negotiation
         time.sleep(0.5)
-        
 
     def finish(self):
-        '''Called as the session is ending'''
-        TelnetHandlerBase.finish(self)
+        "Called as the session is ending"
+        super().finish()
         # Might want to ensure the thread_ic is dead
-
 
     # -- Threaded input handling functions --
 
     def getc(self, block=True):
-        """Return one character from the input queue"""
+        "Return one character from the input queue"
         if not block:
             if not len(self.cookedq):
                 return ''
@@ -55,11 +55,11 @@ class TelnetHandler(TelnetHandlerBase):
         return ret
 
     def inputcooker_socket_ready(self):
-        """Indicate that the socket is ready to be read"""
+        "Indicate that the socket is ready to be read"
         return select.select([self.sock.fileno()], [], [], 0) != ([], [], [])
 
     def inputcooker_store_queue(self, char):
-        """Put the cooked data in the input queue (with locking)"""
+        "Put the cooked data in the input queue (with locking)"
         self.IQUEUELOCK.acquire()
         if type(char) in [type(()), type([]), type("")]:
             for v in char:
@@ -68,22 +68,20 @@ class TelnetHandler(TelnetHandlerBase):
             self.cookedq.append(char)
         self.IQUEUELOCK.release()
 
-
     # -- Threaded output handling functions --
 
     def writemessage(self, text):
-        """Put data in output queue, rebuild the prompt and entered data"""
+        "Put data in output queue, rebuild the prompt and entered data"
         # Need to grab the input queue lock to ensure the entered data doesn't change
         # before we're done rebuilding it.
         # Note that writemessage will eventually call writecooked
         self.IQUEUELOCK.acquire()
-        TelnetHandlerBase.writemessage(self, text)
+        super().writemessage(text)
         self.IQUEUELOCK.release()
     
     def writecooked(self, text, encoding='latin-1'):
-        """Put data directly into the output queue"""
+        "Put data directly into the output queue"
         # Ensure this is the only thread writing
         self.OQUEUELOCK.acquire()
-        TelnetHandlerBase.writecooked(self, text, encoding)
+        super().writecooked(text, encoding)
         self.OQUEUELOCK.release()
-
